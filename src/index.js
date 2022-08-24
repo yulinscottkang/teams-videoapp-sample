@@ -10,8 +10,8 @@ let appliedEffect = {
 };
 
 let effectIds = {
-  half: "c2cf81fd-a1c0-4742-b41a-ef969b3ed490",
-  gray: "b0c8896c-7be8-4645-ae02-a8bc9b0355e5",
+  half: "8c54a395-5cad-443f-978a-12cb7d4d2e8d",
+  gray: "e1039af5-5f80-4b59-8969-e91eb6c3b97c",
 }
 
 // This is the effect linked with UI

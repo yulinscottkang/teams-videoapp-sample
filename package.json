@@ -1,6 +1,6 @@
 {
-  "name": "teams-videoapp-sample",
-  "productName": "Teams VideoApp sample",
+  "name": "TeamsMeetingExtra",
+  "productName": "Teams Meeting Extra",
   "version": "1.0.0",
   "description": "",
   "scripts": {
@@ -10,8 +10,8 @@
   },
   "keywords": [],
   "author": {
-    "name": "Bo Lu",
-    "email": "bolu1@microsoft.com"
+    "name": "Billy Hung",
+    "email": "billyhung@microsoft.com"
   },
   "license": "MIT",
   "devDependencies": {
