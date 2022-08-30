@@ -7,11 +7,21 @@ app.initialize().then(() => {
 let appliedEffect = {
   pixelValue: 100,
   proportion: 3,
+  brightnessIncrease: 20,
+  coolerUIncrease: 5,
+  coolerVIncrease: -5,
 };
 
 let effectIds = {
   half: "8c54a395-5cad-443f-978a-12cb7d4d2e8d",
   gray: "e1039af5-5f80-4b59-8969-e91eb6c3b97c",
+  bright: "51fbe862-08ff-488c-8c48-9ba30f1e43a3",
+  cooler: "8a03f954-9ae7-4453-9376-6d7e1c7de0b8",
+}
+
+function fixRange(min, max, curr)
+{
+  return Math.max(min, Math.min(max, curr));
 }
 
 // This is the effect linked with UI
@@ -30,6 +40,27 @@ function simpleHalfEffect(videoFrame) {
   }
 }
 
+function changeY(videoFrame, yIncrease) {
+  const lenY = (videoFrame.height * videoFrame.width);
+
+  for (let i = 0; i < lenY; ++i) {
+    videoFrame.data[i] += yIncrease;
+    videoFrame.data[i] = fixRange(0, 255, videoFrame.data[i]);
+  }
+}
+
+function changeUV(videoFrame, uIncrease, vIncrease) {
+  const offsetUV = (videoFrame.height * videoFrame.width);
+  const imgEnd = Math.round(offsetUV * 1.5);
+
+  for (let i = offsetUV; i < imgEnd; i += 2) {
+    videoFrame.data[i] += uIncrease;
+    videoFrame.data[i+1] += vIncrease;
+    videoFrame.data[i] = fixRange(0, 255, videoFrame.data[i]);
+    videoFrame.data[i+1] = fixRange(0, 255, videoFrame.data[i+1]);
+  }
+}
+
 let canvas = new OffscreenCanvas(480,360);
 let videoFilter = new WebglVideoFilter(canvas);
 videoFilter.init();
@@ -41,6 +72,13 @@ function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
       break;
     case effectIds.gray:
       videoFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds.bright:
+      changeY(videoFrame, appliedEffect.brightnessIncrease);
+      break;
+    case effectIds.cooler:
+      changeY(videoFrame, 20);
+      changeUV(videoFrame, appliedEffect.coolerUIncrease, appliedEffect.coolerVIncrease);
       break;
     default:
       break;
@@ -58,6 +96,8 @@ function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
 function clearSelect() {
   document.getElementById("filter-half").classList.remove("selected");
   document.getElementById("filter-gray").classList.remove("selected");
+  document.getElementById("filter-bright").classList.remove("selected");
+  document.getElementById("filter-cooler").classList.remove("selected");
 }
 
 function effectParameterChanged(effectId) {
@@ -77,6 +117,14 @@ function effectParameterChanged(effectId) {
     case effectIds.gray:
       console.log('current effect: gray');
       document.getElementById("filter-gray").classList.add("selected");
+      break;
+    case effectIds.bright:
+      console.log('current effect: bright');
+      document.getElementById("filter-bright").classList.add("selected");
+      break;
+    case effectIds.cooler:
+      console.log('current effect: cooler');
+      document.getElementById("filter-cooler").classList.add("selected");
       break;
     default:
       console.log('effect cleared');
@@ -104,4 +152,19 @@ filterGray.addEventListener("click", function () {
   }
   video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.gray);
 });
+const filterBright = document.getElementById("filter-bright");
+filterBright.addEventListener("click", function () {
+  if (selectedEffectId === effectIds.bright) {
+    return;
+  }
+  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.bright);
+});
+const filterCooler = document.getElementById("filter-cooler");
+filterCooler.addEventListener("click", function () {
+  if (selectedEffectId === effectIds.cooler) {
+    return;
+  }
+  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.cooler);
+});
+
 });
