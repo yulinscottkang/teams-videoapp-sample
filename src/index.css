@@ -49,6 +49,30 @@
   background: url(/manifest/resource/img/cooler.png);
 }
 
+#filter-red > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/red.png);
+}
+
+#filter-green > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/green.png);
+}
+
+#filter-blue > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/blue.png);
+}
+
+#filter-gaussian > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/gaussian.png);
+}
+
 a {
   display: block;
 }

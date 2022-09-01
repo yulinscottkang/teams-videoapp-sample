@@ -68,6 +68,26 @@
         "id": "8a03f954-9ae7-4453-9376-6d7e1c7de0b8",
         "name": "Others_Cooler",
         "thumbnail": "resource/img/cooler.png"
+      },
+      {
+        "id": "f334896f-e13f-4d73-807e-db3652fedf1e",
+        "name": "Others_Red",
+        "thumbnail": "resource/img/red.png"
+      },
+      {
+        "id": "845dc834-b51b-4a26-ad5b-bc844cde41fa",
+        "name": "Others_Green",
+        "thumbnail": "resource/img/green.png"
+      },
+      {
+        "id": "143ee242-27ae-4f00-b3b6-83266d8800e2",
+        "name": "Others_Blue",
+        "thumbnail": "resource/img/blue.png"
+      },
+      {
+        "id": "bb667ed8-3bf9-4b1b-ad03-47b8f1f3f33c",
+        "name": "Others_Gaussian",
+        "thumbnail": "resource/img/gaussian.png"
       }
     ],
     "videoFiltersConfigurationUrl": "https://microsoft.github.io/teams-videoapp-sample/app/"
