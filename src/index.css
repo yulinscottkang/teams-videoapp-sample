@@ -37,6 +37,34 @@
   background: url(/img/gray.png);
 }
 
+#filter-identity > a::after {
+  content: "identity";
+}
+
+#filter-box-blur > a::after {
+  content: "box-blur";
+}
+
+#filter-gaussian-blur > a::after {
+  content: "gaussian-blur";
+}
+
+#filter-sharpen > a::after {
+  content: "sharpen";
+}
+
+#filter-unsharpen > a::after {
+  content: "unsharpen";
+}
+
+#filter-edge-detection > a::after {
+  content: "edge-detection";
+}
+
+#filter-emboss > a::after {
+  content: "emboss";
+}
+
 a {
   display: block;
 }

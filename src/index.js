@@ -1,6 +1,7 @@
 import { app, video } from "@microsoft/teams-js";
 
 import { WebglVideoFilter } from "./webgl-video-filter";
+import { WebglVideoFilters } from "./webgl-video-filters"
 
 app.initialize().then(() => {
 // This is the effect for processing
@@ -10,8 +11,15 @@ let appliedEffect = {
 };
 
 let effectIds = {
-  half: "c2cf81fd-a1c0-4742-b41a-ef969b3ed490",
-  gray: "b0c8896c-7be8-4645-ae02-a8bc9b0355e5",
+  "half":           "filter-half",
+  "gray":           "filter-gray",
+  "identity":       "filter-identity",
+  "box-blur":       "filter-box-blur",
+  "gaussian-blur":  "filter-gaussian-blur",
+  "sharpen":        "filter-sharpen",
+  "unsharpen":      "filter-unsharpen",
+  "edge-detection": "filter-edge-detection",
+  "emboss":         "filter-emboss"
 }
 
 // This is the effect linked with UI
@@ -33,6 +41,15 @@ function simpleHalfEffect(videoFrame) {
 let canvas = new OffscreenCanvas(480,360);
 let videoFilter = new WebglVideoFilter(canvas);
 videoFilter.init();
+
+const identityFilter = new WebglVideoFilters("identity");
+const boxBlurFilter = new WebglVideoFilters("box-blur");
+const gaussianBlurFilter = new WebglVideoFilters("gaussian-blur");
+const sharpenFilter = new WebglVideoFilters("sharpen");
+const unsharpenFilter = new WebglVideoFilters("unsharpen");
+const edgeDetectionFilter = new WebglVideoFilters("edge-detection");
+const embossFilter = new WebglVideoFilters("emboss");
+
 //Sample video effect
 function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
   switch (selectedEffectId) {
@@ -41,6 +58,27 @@ function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
       break;
     case effectIds.gray:
       videoFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["identity"]:
+      identityFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["box-blur"]:
+      boxBlurFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["gaussian-blur"]:
+      gaussianBlurFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["sharpen"]:
+      sharpenFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["unsharpen"]:
+      unsharpenFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["edge-detection"]:
+      edgeDetectionFilter.processVideoFrame(videoFrame);
+      break;
+    case effectIds["emboss"]:
+      embossFilter.processVideoFrame(videoFrame);
       break;
     default:
       break;
@@ -56,8 +94,7 @@ function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
 }
 
 function clearSelect() {
-  document.getElementById("filter-half").classList.remove("selected");
-  document.getElementById("filter-gray").classList.remove("selected");
+  document.querySelectorAll(".filter").forEach(elm => elm.classList.remove("selected"));
 }
 
 function effectParameterChanged(effectId) {
@@ -71,15 +108,23 @@ function effectParameterChanged(effectId) {
   clearSelect();
   switch (selectedEffectId) {
     case effectIds.half:
-      console.log('current effect: half');
+      console.log("current effect: half");
       document.getElementById("filter-half").classList.add("selected");
       break;
     case effectIds.gray:
-      console.log('current effect: gray');
+      console.log("current effect: gray");
       document.getElementById("filter-gray").classList.add("selected");
       break;
+    case effectIds["identity"]:
+    case effectIds["box-blur"]:
+    case effectIds["gaussian-blur"]:
+    case effectIds["sharpen"]:
+    case effectIds["unsharpen"]:
+    case effectIds["edge-detection"]:
+      document.getElementById(selectedEffectId).classList.add("selected");
+      break;
     default:
-      console.log('effect cleared');
+      console.log("effect cleared");
       break;
   }
 }
@@ -89,19 +134,14 @@ video.registerForVideoFrame(videoFrameHandler, {
   format: "NV12",
 });
 
-// any changes to the UI should notify Teams client.
-const filterHalf = document.getElementById("filter-half");
-filterHalf.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.half) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.half);
+const filters = document.querySelectorAll(".filter");
+filters.forEach(filter => {
+  filter.addEventListener("click", function () {
+    if (selectedEffectId === filter.id) {
+      return;
+    }
+    video.notifySelectedVideoEffectChanged("EffectChanged", filter.id);
+  });
 });
-const filterGray = document.getElementById("filter-gray");
-filterGray.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.gray) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.gray);
-});
+
 });
