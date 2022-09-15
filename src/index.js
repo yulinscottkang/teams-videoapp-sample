@@ -2,7 +2,7 @@ import { app, video } from "@microsoft/teams-js";
 
 import { WebglVideoFilter } from "./webgl-video-filter";
 
-import { gaussBlur_4, processImageDataRGB } from "./gaussian";
+import { gaussBlur_4 } from "./gaussian";
 
 import { WebglVideoFilters } from "./webgl-video-filters"
 
@@ -16,15 +16,6 @@ import cv from "@techstark/opencv-js";
 app.initialize().then(() => {
 console.log(Object.keys(cv).filter((key) => !key.includes("dynCall")));
 
-// This is the effect for processing
-let appliedEffect = {
-  pixelValue: 100,
-  proportion: 3,
-  brightnessIncrease: 20,
-  coolerUIncrease: 5,
-  coolerVIncrease: -5,
-  gaussBlurRadius: 5,
-};
 
 let effectIds = {
   original: "e734baaf-c0a4-43aa-ba4b-b91daeaa8687",
@@ -46,7 +37,7 @@ let effectIds = {
   summer: "2fc4f11f-c2f1-4149-9200-47f93770dc96",
   fall: "34081e61-e99d-4a40-8bc5-30ebe47430fd",
   winter: "f6fc39b0-8bbb-4890-a9bc-2066b350610d"
-}
+};
 
 var cvMatSrc = null;
 var cvMatDst = null;
@@ -214,19 +205,6 @@ function convertCvMatToFrame(mat, frame)
   }
 }
 
-// This is the effect linked with UI
-let selectedEffectId = undefined;
-function simpleHalfEffect(videoFrame) {
-  const maxLen =
-    (videoFrame.height * videoFrame.width) /
-      Math.max(1, appliedEffect.proportion) - 4;
-
-  for (let i = 1; i < maxLen; i += 4) {
-    //smaple effect just change the value to 100, which effect some pixel value of video frame
-    videoFrame.data[i + 1] = appliedEffect.pixelValue;
-  }
-}
-
 function changeY(videoFrame, yIncrease) {
   const lenY = (videoFrame.height * videoFrame.width);
 
@@ -259,25 +237,25 @@ const glUnsharpenFilter = new WebglVideoFilters("unsharpen");
 const glEdgeDetectionFilter = new WebglVideoFilters("edge-detection");
 const glEmbossFilter = new WebglVideoFilters("emboss");
 
+let selectedEffectId = undefined;
+
 //Sample video effect
 function videoFrameHandler(frame, notifyVideoProcessed, notifyError) {
   //console.log(frame);
   let rgb = null;
-  //var cv = window.cv;
   switch (selectedEffectId) {
     case effectIds.original:
       break;
     case effectIds.half:
-      simpleHalfEffect(frame);
       break;
     case effectIds.gray:
       videoFilter.processVideoFrame(frame);
       break;
     case effectIds.bright:
-      changeY(frame, appliedEffect.brightnessIncrease);
+      changeY(frame, 20);
       break;
     case effectIds.cooler:
-      changeUV(frame, appliedEffect.coolerUIncrease, appliedEffect.coolerVIncrease);
+      changeUV(frame, 5, -5);
       break;
     case effectIds.red:
       rgb = convertFrameToRgb(frame);
@@ -308,9 +286,9 @@ function videoFrameHandler(frame, notifyVideoProcessed, notifyError) {
       let rOut = new Uint8Array(r.length);
       let gOut = new Uint8Array(g.length);
       let bOut = new Uint8Array(b.length);
-      gaussBlur_4(r, rOut, frame.width, frame.height, appliedEffect.gaussBlurRadius);
-      gaussBlur_4(g, gOut, frame.width, frame.height, appliedEffect.gaussBlurRadius);
-      gaussBlur_4(b, bOut, frame.width, frame.height, appliedEffect.gaussBlurRadius);
+      gaussBlur_4(r, rOut, frame.width, frame.height, 5);
+      gaussBlur_4(g, gOut, frame.width, frame.height, 5);
+      gaussBlur_4(b, bOut, frame.width, frame.height, 5);
       convertRgb3ToFrame(rOut, gOut, bOut, frame);
       break;
     case effectIds.glBoxBlur:

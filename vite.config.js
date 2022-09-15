@@ -9,8 +9,5 @@ export default {
     ],
     server: {
         https: true
-    },
-    define: {
-        Module: {}
     }
 }
