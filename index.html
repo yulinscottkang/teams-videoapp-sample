@@ -9,6 +9,9 @@
 <body>
     <h1 class="app-title">Video App Sample!</h1>
     <div class="horizontal">
+      <div class="filter" id="filter-original">
+        <a class="thumbnail"></a>
+      </div>
       <div class="filter" id="filter-half">
         <a class="thumbnail"></a>
       </div>
@@ -33,8 +36,47 @@
       <div class="filter" id="filter-gaussian">
         <a class="thumbnail"></a>
       </div>
+      <div class="filter" id="filter-glBoxBlur">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-glGaussianBlur">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-glSharpen">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-glUnsharpen">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-glEdgeDetection">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-glEmboss">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-spring">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-summer">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-fall">
+        <a class="thumbnail"></a>
+      </div>
+      <div class="filter" id="filter-winter">
+        <a class="thumbnail"></a>
+      </div>
     </div>
     <link rel="stylesheet" type="text/css" href="./src/index.css" />
+    <!-- <script type="text/javascript">
+      function onOpenCvReady() {
+          var dummy = document.createElement('div');
+          dummy.setAttribute("id", "_opencv_ready");
+          document.body.appendChild(dummy);
+          window.cv = cv;
+      }
+    </script>
+    <script async src="./src/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script> -->
     <script src="./src/index.js" type="module"></script>
 </body>
 </html>

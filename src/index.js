@@ -2,7 +2,20 @@ import { app, video } from "@microsoft/teams-js";
 
 import { WebglVideoFilter } from "./webgl-video-filter";
 
+import { gaussBlur_4, processImageDataRGB } from "./gaussian";
+
+import { WebglVideoFilters } from "./webgl-video-filters"
+
+import { bilateralFilterFast } from "./bilateral";
+import cv from "@techstark/opencv-js";
+
+
+
+
+
 app.initialize().then(() => {
+console.log(Object.keys(cv).filter((key) => !key.includes("dynCall")));
+
 // This is the effect for processing
 let appliedEffect = {
   pixelValue: 100,
@@ -10,9 +23,11 @@ let appliedEffect = {
   brightnessIncrease: 20,
   coolerUIncrease: 5,
   coolerVIncrease: -5,
+  gaussBlurRadius: 5,
 };
 
 let effectIds = {
+  original: "e734baaf-c0a4-43aa-ba4b-b91daeaa8687",
   half: "8c54a395-5cad-443f-978a-12cb7d4d2e8d",
   gray: "e1039af5-5f80-4b59-8969-e91eb6c3b97c",
   bright: "51fbe862-08ff-488c-8c48-9ba30f1e43a3",
@@ -20,15 +35,40 @@ let effectIds = {
   red: "f334896f-e13f-4d73-807e-db3652fedf1e",
   green: "845dc834-b51b-4a26-ad5b-bc844cde41fa",
   blue: "143ee242-27ae-4f00-b3b6-83266d8800e2",
-  gaussian: "bb667ed8-3bf9-4b1b-ad03-47b8f1f3f33c"
+  gaussian: "bb667ed8-3bf9-4b1b-ad03-47b8f1f3f33c",
+  glBoxBlur: "9a9a70ca-fa5b-498d-8ea0-514c4e7dd130",
+  glGaussianBlur: "ec13973c-e866-4370-a6b5-615b67584b7f",
+  glSharpen: "1f6fa287-2198-4314-9650-fe85c29ebfc1",
+  glUnsharpen: "9cf9b5b7-33bc-48bb-9e93-6488cb8ce0a8",
+  glEdgeDetection: "9dee20ec-ffde-47f4-82b7-9fa47fffe89d",
+  glEmboss: "b3c47cb9-2223-4bf5-9674-fcd19e21b2e9",
+  spring: "83d3f270-9c12-4ea3-be76-bc971894a8b0",
+  summer: "2fc4f11f-c2f1-4149-9200-47f93770dc96",
+  fall: "34081e61-e99d-4a40-8bc5-30ebe47430fd",
+  winter: "f6fc39b0-8bbb-4890-a9bc-2066b350610d"
 }
+
+var cvMatSrc = null;
+var cvMatDst = null;
+var cvMatWidth = 0, cvMatHeight = 0;
 
 function fixRange(min, max, curr)
 {
   return Math.max(min, Math.min(max, curr));
 }
 
-function convertToRgb(frame)
+function initCvMatIfNeed(frame)
+{
+  if (cvMatSrc == null || cvMatWidth != frame.width || cvMatHeight != frame.height)
+  {
+    cvMatSrc = new cv.Mat(frame.height, frame.width, cv.CV_8UC3);
+    cvMatDst = new cv.Mat(frame.height, frame.width, cv.CV_8UC3);
+    cvMatWidth = frame.width;
+    cvMatHeight = frame.height;
+  }
+}
+
+function convertFrameToRgb(frame)
 {
   let size = frame.width * frame.height;
   let rgb = new Uint8Array(size * 3);
@@ -53,7 +93,59 @@ function convertToRgb(frame)
   return rgb;
 }
 
-function convertToFrame(rgb, frame)
+function convertFrameToRgb3(frame)
+{
+  let size = frame.width * frame.height;
+  let rOut = new Uint8Array(size);
+  let gOut = new Uint8Array(size);
+  let bOut = new Uint8Array(size);
+  for (let height = 0; height < frame.height; ++height)
+  {
+    for (let width = 0; width < frame.width; ++width)
+    {
+      const uvIndex = size + (height >> 1) * frame.chromaStride + (width & ~1);
+      const y = frame.data[height * frame.lumaStride + width];
+      const u = frame.data[uvIndex] - 128;
+      const v = frame.data[uvIndex + 1] - 128;
+      const r = fixRange(0, 255, y + 1.4*v - 0.7);
+      const g = fixRange(0, 255, y - 0.343*u - 0.711*v + 0.526);
+      const b = fixRange(0, 255, y + 1.765*u - 0.883);
+
+      const rgbIndex = (height * frame.width + width);
+      rOut[rgbIndex] = r;
+      gOut[rgbIndex] = g;
+      bOut[rgbIndex] = b;
+    }
+  }
+  return [rOut, gOut, bOut];
+}
+
+function convertFrameToCvMat(frame, cvMat)
+{
+  let yuv = cv.matFromArray(Math.round(frame.height*1.5), frame.width , cv.CV_8UC1, frame.data);
+  cv.cvtColor(yuv, cvMat, cv.COLOR_YUV2BGR_NV12);
+  //let size = frame.width * frame.height;
+  //for (let height = 0; height < frame.height; ++height)
+  //{
+  //  for (let width = 0; width < frame.width; ++width)
+  //  {
+  //    const uvIndex = size + (height >> 1) * frame.chromaStride + (width & ~1);
+  //    const y = frame.data[height * frame.lumaStride + width];
+  //    const u = frame.data[uvIndex] - 128;
+  //    const v = frame.data[uvIndex + 1] - 128;
+  //    const r = fixRange(0, 255, y + 1.4*v - 0.7);
+  //    const g = fixRange(0, 255, y - 0.343*u - 0.711*v + 0.526);
+  //    const b = fixRange(0, 255, y + 1.765*u - 0.883);
+  //
+  //    const rgbIndex = (height * frame.width + width) * 3;
+  //    mat.data[rgbIndex] = b;
+  //    mat.data[rgbIndex+1] = g;
+  //    mat.data[rgbIndex+2] = r;
+  //  }
+  //}
+}
+
+function convertRgbToFrame(rgb, frame)
 {
   let size = frame.width * frame.height;
   for (let height = 0; height < frame.height; ++height)
@@ -76,11 +168,54 @@ function convertToFrame(rgb, frame)
   }
 }
 
+function convertRgb3ToFrame(rAry, gAry, bAry, frame)
+{
+  let size = frame.width * frame.height;
+  for (let height = 0; height < frame.height; ++height)
+  {
+    for (let width = 0; width < frame.width; ++width)
+    {
+      const rgbIndex = (height * frame.width + width);
+      const r = rAry[rgbIndex];
+      const g = gAry[rgbIndex];
+      const b = bAry[rgbIndex];
+      const y = fixRange(0, 255, 0.299*r + 0.587*g + 0.114*b);
+      const u = fixRange(0, 255, -0.169*r - 0.331*g + 0.5*b + 128);
+      const v = fixRange(0, 255, 0.5*r - 0.439*g - 0.081*b + 128);
+
+      const uvIndex = size + (height >> 1) * frame.chromaStride + (width & ~1);
+      frame.data[height * frame.lumaStride + width] = y;
+      frame.data[uvIndex] = u;
+      frame.data[uvIndex + 1] = v;
+    }
+  }
+}
+
+function convertCvMatToFrame(mat, frame)
+{
+  let size = frame.width * frame.height;
+  for (let height = 0; height < frame.height; ++height)
+  {
+    for (let width = 0; width < frame.width; ++width)
+    {
+      const rgbIndex = (height * frame.width + width) * 3;
+      const b = mat.data[rgbIndex];
+      const g = mat.data[rgbIndex + 1];
+      const r = mat.data[rgbIndex + 2];
+      const y = fixRange(0, 255, 0.299*r + 0.587*g + 0.114*b);
+      const u = fixRange(0, 255, -0.169*r - 0.331*g + 0.5*b + 128);
+      const v = fixRange(0, 255, 0.5*r - 0.439*g - 0.081*b + 128);
+
+      const uvIndex = size + (height >> 1) * frame.chromaStride + (width & ~1);
+      frame.data[height * frame.lumaStride + width] = y;
+      frame.data[uvIndex] = u;
+      frame.data[uvIndex + 1] = v;
+    }
+  }
+}
+
 // This is the effect linked with UI
-let uiSelectedEffect = {};
 let selectedEffectId = undefined;
-let errorOccurs = false;
-let useSimpleEffect = false;
 function simpleHalfEffect(videoFrame) {
   const maxLen =
     (videoFrame.height * videoFrame.width) /
@@ -116,51 +251,117 @@ function changeUV(videoFrame, uIncrease, vIncrease) {
 let canvas = new OffscreenCanvas(480,360);
 let videoFilter = new WebglVideoFilter(canvas);
 videoFilter.init();
+
+const glBoxBlurFilter = new WebglVideoFilters("box-blur");
+const glGaussianBlurFilter = new WebglVideoFilters("gaussian-blur");
+const glSharpenFilter = new WebglVideoFilters("sharpen");
+const glUnsharpenFilter = new WebglVideoFilters("unsharpen");
+const glEdgeDetectionFilter = new WebglVideoFilters("edge-detection");
+const glEmbossFilter = new WebglVideoFilters("emboss");
+
 //Sample video effect
-function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
-  //console.log(videoFrame);
+function videoFrameHandler(frame, notifyVideoProcessed, notifyError) {
+  //console.log(frame);
   let rgb = null;
+  //var cv = window.cv;
   switch (selectedEffectId) {
+    case effectIds.original:
+      break;
     case effectIds.half:
-      simpleHalfEffect(videoFrame);
+      simpleHalfEffect(frame);
       break;
     case effectIds.gray:
-      videoFilter.processVideoFrame(videoFrame);
+      videoFilter.processVideoFrame(frame);
       break;
     case effectIds.bright:
-      changeY(videoFrame, appliedEffect.brightnessIncrease);
+      changeY(frame, appliedEffect.brightnessIncrease);
       break;
     case effectIds.cooler:
-      changeY(videoFrame, 20);
-      changeUV(videoFrame, appliedEffect.coolerUIncrease, appliedEffect.coolerVIncrease);
+      changeUV(frame, appliedEffect.coolerUIncrease, appliedEffect.coolerVIncrease);
       break;
     case effectIds.red:
-      rgb = convertToRgb(videoFrame);
+      rgb = convertFrameToRgb(frame);
       for (let i = 0; i < rgb.length; i+=3)
       {
         rgb[i] = fixRange(0, 255, rgb[i] + 50);
       }
-      convertToFrame(rgb, videoFrame);
+      convertRgbToFrame(rgb, frame);
       break;
     case effectIds.green:
-      rgb = convertToRgb(videoFrame);
+      rgb = convertFrameToRgb(frame);
       for (let i = 0; i < rgb.length; i+=3)
       {
         rgb[i+1] = fixRange(0, 255, rgb[i+1] + 50);
       }
-      convertToFrame(rgb, videoFrame);
+      convertRgbToFrame(rgb, frame);
       break;
     case effectIds.blue:
-      rgb = convertToRgb(videoFrame);
+      rgb = convertFrameToRgb(frame);
       for (let i = 0; i < rgb.length; i+=3)
       {
         rgb[i+2] = fixRange(0, 255, rgb[i+2] + 50);
       }
-      convertToFrame(rgb, videoFrame);
+      convertRgbToFrame(rgb, frame);
       break;
     case effectIds.gaussian:
-      rgb = convertToRgb(videoFrame);
-      convertToFrame(rgb, videoFrame);
+      const [r, g, b] = convertFrameToRgb3(frame);
+      let rOut = new Uint8Array(r.length);
+      let gOut = new Uint8Array(g.length);
+      let bOut = new Uint8Array(b.length);
+      gaussBlur_4(r, rOut, frame.width, frame.height, appliedEffect.gaussBlurRadius);
+      gaussBlur_4(g, gOut, frame.width, frame.height, appliedEffect.gaussBlurRadius);
+      gaussBlur_4(b, bOut, frame.width, frame.height, appliedEffect.gaussBlurRadius);
+      convertRgb3ToFrame(rOut, gOut, bOut, frame);
+      break;
+    case effectIds.glBoxBlur:
+      glBoxBlurFilter.processVideoFrame(frame);
+      break;
+    case effectIds.glGaussianBlur:
+      glGaussianBlurFilter.processVideoFrame(frame);
+      break;
+    case effectIds.glSharpen:
+      glSharpenFilter.processVideoFrame(frame);
+      break;
+    case effectIds.glUnsharpen:
+      glUnsharpenFilter.processVideoFrame(frame);
+      break;
+    case effectIds.glEdgeDetection:
+      glEdgeDetectionFilter.processVideoFrame(frame);
+      break;
+    case effectIds.glEmboss:
+      glEmbossFilter.processVideoFrame(frame);
+      break;
+    case effectIds.spring:
+      initCvMatIfNeed(frame);
+      changeY(frame, 20);
+      convertFrameToCvMat(frame, cvMatSrc);
+      //let dstSpring = cv.fastNlMeansDenoisingColored(srcSpring,null,10,10,7,21)
+      cv.GaussianBlur(cvMatSrc, cvMatDst, new cv.Size(3, 3), 0, 0, cv.BORDER_DEFAULT);
+      convertCvMatToFrame(cvMatDst, frame);
+      break;
+    case effectIds.summer:
+      changeY(frame, 20);
+      const [rSummer, gSummer, bSummer] = convertFrameToRgb3(frame);
+      let rSummerOut = new Uint8Array(rSummer.length);
+      let gSummerOut = new Uint8Array(gSummer.length);
+      let bSummerOut = new Uint8Array(bSummer.length);
+      gaussBlur_4(rSummer, rSummerOut, frame.width, frame.height, 1);
+      gaussBlur_4(gSummer, gSummerOut, frame.width, frame.height, 1);
+      gaussBlur_4(bSummer, bSummerOut, frame.width, frame.height, 1);
+      convertRgb3ToFrame(rSummerOut, gSummerOut, bSummerOut, frame);
+      break;
+    case effectIds.fall:
+      initCvMatIfNeed(frame);
+      changeY(frame, 20);
+      convertFrameToCvMat(frame, cvMatSrc);
+      cv.bilateralFilter(cvMatSrc, cvMatDst, 9, 75, 75, cv.BORDER_DEFAULT);
+      convertCvMatToFrame(cvMatDst, frame);
+      break;
+    case effectIds.winter:
+      const rgbWinter = convertFrameToRgb(frame);
+      let bilateralFast = new bilateralFilterFast(32);
+      let rgbWinterOut = bilateralFast.run(rgbWinter, frame.width, frame.height);
+      convertRgbToFrame(rgbWinterOut, frame);
       break;
     default:
       break;
@@ -176,14 +377,7 @@ function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
 }
 
 function clearSelect() {
-  document.getElementById("filter-half").classList.remove("selected");
-  document.getElementById("filter-gray").classList.remove("selected");
-  document.getElementById("filter-bright").classList.remove("selected");
-  document.getElementById("filter-cooler").classList.remove("selected");
-  document.getElementById("filter-red").classList.remove("selected");
-  document.getElementById("filter-green").classList.remove("selected");
-  document.getElementById("filter-blue").classList.remove("selected");
-  document.getElementById("filter-gaussian").classList.remove("selected");
+  document.querySelectorAll(".filter").forEach(elm => elm.classList.remove("selected"));
 }
 
 function effectParameterChanged(effectId) {
@@ -195,42 +389,14 @@ function effectParameterChanged(effectId) {
   selectedEffectId = effectId;
 
   clearSelect();
-  switch (selectedEffectId) {
-    case effectIds.half:
-      console.log('current effect: half');
-      document.getElementById("filter-half").classList.add("selected");
-      break;
-    case effectIds.gray:
-      console.log('current effect: gray');
-      document.getElementById("filter-gray").classList.add("selected");
-      break;
-    case effectIds.bright:
-      console.log('current effect: bright');
-      document.getElementById("filter-bright").classList.add("selected");
-      break;
-    case effectIds.cooler:
-      console.log('current effect: cooler');
-      document.getElementById("filter-cooler").classList.add("selected");
-      break;
-    case effectIds.red:
-      console.log('current effect: red');
-      document.getElementById("filter-red").classList.add("selected");
-      break;
-    case effectIds.green:
-      console.log('current effect: green');
-      document.getElementById("filter-green").classList.add("selected");
-      break;
-    case effectIds.blue:
-      console.log('current effect: blue');
-      document.getElementById("filter-blue").classList.add("selected");
-      break;
-    case effectIds.gaussian:
-      console.log('current effect: gaussian');
-      document.getElementById("filter-gaussian").classList.add("selected");
-      break;
-    default:
-      console.log('effect cleared');
-      break;
+  for (let effectName in effectIds)
+  {
+    if (effectIds[effectName] != selectedEffectId)
+    {
+      continue;
+    }
+    console.log(`current effect: ${effectName}`);
+    document.getElementById(`filter-${effectName}`).classList.add("selected");
   }
 }
 
@@ -240,61 +406,16 @@ video.registerForVideoFrame(videoFrameHandler, {
 });
 
 // any changes to the UI should notify Teams client.
-const filterHalf = document.getElementById("filter-half");
-filterHalf.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.half) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.half);
-});
-const filterGray = document.getElementById("filter-gray");
-filterGray.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.gray) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.gray);
-});
-const filterBright = document.getElementById("filter-bright");
-filterBright.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.bright) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.bright);
-});
-const filterCooler = document.getElementById("filter-cooler");
-filterCooler.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.cooler) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.cooler);
-});
-const filterRed = document.getElementById("filter-red");
-filterRed.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.red) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.red);
-});
-const filterGreen = document.getElementById("filter-green");
-filterGreen.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.green) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.green);
-});
-const filterBlue = document.getElementById("filter-blue");
-filterBlue.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.blue) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.blue);
-});
-const filterGaussian = document.getElementById("filter-gaussian");
-filterGaussian.addEventListener("click", function () {
-  if (selectedEffectId === effectIds.gaussian) {
-    return;
-  }
-  video.notifySelectedVideoEffectChanged("EffectChanged", effectIds.gaussian);
-});
+for (let effectName in effectIds)
+{
+  const filter = document.getElementById(`filter-${effectName}`);
+  filter.addEventListener("click", function () {
+    if (selectedEffectId === effectIds[effectName])
+    {
+      return;
+    }
+    video.notifySelectedVideoEffectChanged("EffectChanged", effectIds[effectName]);
+  });
+}
 
 });

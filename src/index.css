@@ -25,6 +25,12 @@
   border-radius: 2px;
 }
 
+#filter-original > a {
+  width: 74px;
+  height: 42px;
+  background: url(/manifest/resource/img/original.png);
+}
+
 #filter-half > a {
   width: 74px;
   height: 42px;
@@ -71,6 +77,54 @@ background: url(/manifest/resource/img/blue.png);
   width: 74px;
   height: 42px;
 background: url(/manifest/resource/img/gaussian.png);
+}
+
+#filter-glBoxBlur > a::after {
+  content: "box-blur";
+}
+
+#filter-glGaussianBlur > a::after {
+  content: "gaussian-blur";
+}
+
+#filter-glSharpen > a::after {
+  content: "sharpen";
+}
+
+#filter-glUnsharpen > a::after {
+  content: "unsharpen";
+}
+
+#filter-glEdgeDetection > a::after {
+  content: "edge-detection";
+}
+
+#filter-glEmboss > a::after {
+  content: "emboss";
+}
+
+#filter-spring > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/spring.png);
+}
+
+#filter-summer > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/summer.png);
+}
+
+#filter-fall > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/fall.png);
+}
+
+#filter-winter > a {
+  width: 74px;
+  height: 42px;
+background: url(/manifest/resource/img/winter.png);
 }
 
 a {
