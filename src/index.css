@@ -65,6 +65,14 @@
   content: "emboss";
 }
 
+#filter-face > a::after {
+  content: "face";
+}
+
+#filter-mask > a::after {
+  content: "mask";
+}
+
 a {
   display: block;
 }
