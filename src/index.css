@@ -65,6 +65,10 @@
   content: "emboss";
 }
 
+#filter-face > a::after {
+  content: "face";
+}
+
 a {
   display: block;
 }

@@ -36,8 +36,16 @@
       <div class="filter" id="filter-emboss">
         <a class="thumbnail"></a>
       </div>
+      <div class="filter" id="filter-face">
+        <a class="thumbnail"></a>
+      </div>
     </div>
     <link rel="stylesheet" type="text/css" href="./src/index.css" />
+    <script src="https://cdn.jsdelivr.net/gh/jeeliz/jeelizFaceFilter@master/dist/jeelizFaceFilter.js"></script>
+    <script src="./src/jeelizCanvas2DHelper.js"></script>
     <script src="./src/index.js" type="module"></script>
+
+    <canvas width="640" height="360" id='jeeFaceFilterCanvas'></canvas>
+    <canvas width="640" height="360" id='debug'></canvas>
 </body>
 </html>

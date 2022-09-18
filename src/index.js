@@ -2,6 +2,7 @@ import { app, video } from "@microsoft/teams-js";
 
 import { WebglVideoFilter } from "./webgl-video-filter";
 import { WebglVideoFilters } from "./webgl-video-filters"
+import { WebglFaceFilters } from "./webgl-face-filters"
 
 app.initialize().then(() => {
 // This is the effect for processing
@@ -19,7 +20,8 @@ let effectIds = {
   "sharpen":        "filter-sharpen",
   "unsharpen":      "filter-unsharpen",
   "edge-detection": "filter-edge-detection",
-  "emboss":         "filter-emboss"
+  "emboss":         "filter-emboss",
+  "face":           "filter-face"
 }
 
 // This is the effect linked with UI
@@ -49,6 +51,7 @@ const sharpenFilter = new WebglVideoFilters("sharpen");
 const unsharpenFilter = new WebglVideoFilters("unsharpen");
 const edgeDetectionFilter = new WebglVideoFilters("edge-detection");
 const embossFilter = new WebglVideoFilters("emboss");
+const faceFilter = new WebglFaceFilters();
 
 //Sample video effect
 function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
@@ -80,6 +83,9 @@ function videoFrameHandler(videoFrame, notifyVideoProcessed, notifyError) {
     case effectIds["emboss"]:
       embossFilter.processVideoFrame(videoFrame);
       break;
+    case effectIds["face"]:
+        faceFilter.processVideoFrame(videoFrame);
+        break;
     default:
       break;
   }
@@ -121,6 +127,8 @@ function effectParameterChanged(effectId) {
     case effectIds["sharpen"]:
     case effectIds["unsharpen"]:
     case effectIds["edge-detection"]:
+    case effectIds["emboss"]:
+    case effectIds["face"]:
       document.getElementById(selectedEffectId).classList.add("selected");
       break;
     default:
