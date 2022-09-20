@@ -37,6 +37,7 @@ let effectIds = {
   glEmboss: "b3c47cb9-2223-4bf5-9674-fcd19e21b2e9",
   glFace: "9b8714c3-3a0c-4540-8900-329ca87933c2",
   glMask: "97d4f47a-75cb-47a5-af54-603f54ed640a",
+  glBlush: "b4ac1b9a-8bc4-4966-9d76-5e1ba97b59af",
   spring: "83d3f270-9c12-4ea3-be76-bc971894a8b0",
   summer: "2fc4f11f-c2f1-4149-9200-47f93770dc96",
   fall: "34081e61-e99d-4a40-8bc5-30ebe47430fd",
@@ -320,6 +321,9 @@ function videoFrameHandler(frame, notifyVideoProcessed, notifyError) {
       break;
     case effectIds.glMask:
       faceDetector.processVideoFrame(frame, "/img/comedy-glasses.png");
+      break;
+    case effectIds.glBlush:
+      faceDetector.processVideoFrame(frame, "/img/blush.png", 0, 10);
       break;
     case effectIds.spring:
       initCvMatIfNeed(frame);

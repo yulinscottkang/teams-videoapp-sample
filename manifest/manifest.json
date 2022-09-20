@@ -135,6 +135,11 @@
         "thumbnail": "resource/img/GlMask.png"
       },
       {
+        "id": "b4ac1b9a-8bc4-4966-9d76-5e1ba97b59af",
+        "name": "Others_GlBlush",
+        "thumbnail": "resource/img/GlBlush.png"
+      },
+      {
         "id": "83d3f270-9c12-4ea3-be76-bc971894a8b0",
         "name": "Others_Spring",
         "thumbnail": "resource/img/spring.png"

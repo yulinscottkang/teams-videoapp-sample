@@ -111,6 +111,10 @@ background: url(/manifest/resource/img/red.png);
   content: "Mask";
 }
 
+#filter-glBlush > a::after {
+  content: "Blush";
+}
+
 #filter-spring > a {
   width: 74px;
   height: 42px;

@@ -9,6 +9,8 @@ export class WebglFaceDetector {
     this._height = -1;
     this._mask = null;
     this._helper = null;
+    this._offsetX = 0;
+    this._offsetY = 0;
   }
 
   async init() {
@@ -18,7 +20,7 @@ export class WebglFaceDetector {
     // await faceapi.loadFaceRecognitionModel(MODEL_URL);
   }
 
-  processVideoFrame(videoFrame, mask) {
+  processVideoFrame(videoFrame, mask, offsetX = 0, offsetY = 0) {
     const size = videoFrame.height * videoFrame.width;
 
     let planeY = {
@@ -36,6 +38,8 @@ export class WebglFaceDetector {
     if (mask && mask != this._mask?.src) {
       this._mask = new Image();
       this._mask.src = mask;
+      this._offsetX = offsetX;
+      this._offsetY = offsetY;
     } else {
       this._mask = null;
     }
@@ -144,7 +148,7 @@ export class WebglFaceDetector {
           this._helper.canvas.height
         );
         if (this._mask) {
-          this._helper.ctx.drawImage(this._mask, x, y, width, height);
+          this._helper.ctx.drawImage(this._mask, x + this._offsetX, y + this._offsetY, width, height);
         } else {
           this._helper.ctx.strokeRect(x, y, width, height);
         }
