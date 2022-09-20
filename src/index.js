@@ -6,6 +6,8 @@ import { gaussBlur_4 } from "./gaussian";
 
 import { WebglVideoFilters } from "./webgl-video-filters"
 
+import { WebglFaceDetector } from "./webgl-face-detector"
+
 import { bilateralFilterFast } from "./bilateral";
 import cv from "@techstark/opencv-js";
 
@@ -33,6 +35,8 @@ let effectIds = {
   glUnsharpen: "9cf9b5b7-33bc-48bb-9e93-6488cb8ce0a8",
   glEdgeDetection: "9dee20ec-ffde-47f4-82b7-9fa47fffe89d",
   glEmboss: "b3c47cb9-2223-4bf5-9674-fcd19e21b2e9",
+  glFace: "9b8714c3-3a0c-4540-8900-329ca87933c2",
+  glMask: "97d4f47a-75cb-47a5-af54-603f54ed640a",
   spring: "83d3f270-9c12-4ea3-be76-bc971894a8b0",
   summer: "2fc4f11f-c2f1-4149-9200-47f93770dc96",
   fall: "34081e61-e99d-4a40-8bc5-30ebe47430fd",
@@ -236,6 +240,8 @@ const glSharpenFilter = new WebglVideoFilters("sharpen");
 const glUnsharpenFilter = new WebglVideoFilters("unsharpen");
 const glEdgeDetectionFilter = new WebglVideoFilters("edge-detection");
 const glEmbossFilter = new WebglVideoFilters("emboss");
+const faceDetector = new WebglFaceDetector();
+faceDetector.init();
 
 let selectedEffectId = undefined;
 
@@ -308,6 +314,12 @@ function videoFrameHandler(frame, notifyVideoProcessed, notifyError) {
       break;
     case effectIds.glEmboss:
       glEmbossFilter.processVideoFrame(frame);
+      break;
+    case effectIds.glFace:
+      faceDetector.processVideoFrame(frame);
+      break;
+    case effectIds.glMask:
+      faceDetector.processVideoFrame(frame, "/img/comedy-glasses.png");
       break;
     case effectIds.spring:
       initCvMatIfNeed(frame);

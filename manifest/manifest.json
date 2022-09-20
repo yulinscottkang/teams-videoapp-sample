@@ -125,6 +125,16 @@
         "thumbnail": "resource/img/GlEmboss.png"
       },
       {
+        "id": "9b8714c3-3a0c-4540-8900-329ca87933c2",
+        "name": "Others_GlFace",
+        "thumbnail": "resource/img/GlFace.png"
+      },
+      {
+        "id": "97d4f47a-75cb-47a5-af54-603f54ed640a",
+        "name": "Others_GlMask",
+        "thumbnail": "resource/img/GlMask.png"
+      },
+      {
         "id": "83d3f270-9c12-4ea3-be76-bc971894a8b0",
         "name": "Others_Spring",
         "thumbnail": "resource/img/spring.png"

@@ -103,6 +103,14 @@ background: url(/manifest/resource/img/red.png);
   content: "emboss";
 }
 
+#filter-glFace > a::after {
+  content: "Face";
+}
+
+#filter-glMask > a::after {
+  content: "Mask";
+}
+
 #filter-spring > a {
   width: 74px;
   height: 42px;

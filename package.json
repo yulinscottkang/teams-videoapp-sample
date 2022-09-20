@@ -20,6 +20,7 @@
   "dependencies": {
     "@microsoft/teams-js": "^2.2.0",
     "@techstark/opencv-js": "^4.6.0-release.1",
+    "face-api.js": "^0.22.2",
     "vite-plugin-mkcert": "^1.9.0"
   }
 }
