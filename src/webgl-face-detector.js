@@ -14,7 +14,7 @@ export class WebglFaceDetector {
   }
 
   async init() {
-    const MODEL_URL = "/models";
+    const MODEL_URL = window.location.hostname === "127.0.0.1" ? "/models" : "/TeamsMeetingExtra/app/models";
     await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
     // await faceapi.loadFaceLandmarkModel(MODEL_URL);
     // await faceapi.loadFaceRecognitionModel(MODEL_URL);
