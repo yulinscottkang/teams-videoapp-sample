@@ -41,7 +41,12 @@ let effectIds = {
   spring: "83d3f270-9c12-4ea3-be76-bc971894a8b0",
   summer: "2fc4f11f-c2f1-4149-9200-47f93770dc96",
   fall: "34081e61-e99d-4a40-8bc5-30ebe47430fd",
-  winter: "f6fc39b0-8bbb-4890-a9bc-2066b350610d"
+  winter: "f6fc39b0-8bbb-4890-a9bc-2066b350610d",
+  beauty1: "1c649b42-c074-4668-8894-ebdd8707393a",
+  beauty2: "906e72e5-eb6e-480c-98ee-a31cb233f1dd",
+  beauty3: "24412974-032c-4f76-af41-84a2c0f008ee",
+  beauty4: "4ded22f9-9350-4f32-9073-63e27a395184",
+  beauty5: "e4b9fa03-9953-428e-8053-2ffc2bb0b3d0",
 };
 
 var cvMatSrc = null;

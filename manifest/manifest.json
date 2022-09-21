@@ -158,6 +158,31 @@
         "id": "f6fc39b0-8bbb-4890-a9bc-2066b350610d",
         "name": "Others_Winter",
         "thumbnail": "resource/img/winter.png"
+      },
+      {
+        "id": "1c649b42-c074-4668-8894-ebdd8707393a",
+        "name": "Others_Beauty1",
+        "thumbnail": "resource/img/beauty1.png"
+      },
+      {
+        "id": "906e72e5-eb6e-480c-98ee-a31cb233f1dd",
+        "name": "Others_Beauty2",
+        "thumbnail": "resource/img/beauty2.png"
+      },
+      {
+        "id": "24412974-032c-4f76-af41-84a2c0f008ee",
+        "name": "Others_Beauty3",
+        "thumbnail": "resource/img/beauty3.png"
+      },
+      {
+        "id": "4ded22f9-9350-4f32-9073-63e27a395184",
+        "name": "Others_Beauty4",
+        "thumbnail": "resource/img/beauty4.png"
+      },
+      {
+        "id": "e4b9fa03-9953-428e-8053-2ffc2bb0b3d0",
+        "name": "Others_Beauty5",
+        "thumbnail": "resource/img/beauty5.png"
       }
     ],
     "videoFiltersConfigurationUrl": "https://winest.github.io/TeamsMeetingExtra/app/"
