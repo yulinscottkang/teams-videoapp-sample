@@ -1,4 +1,4 @@
-const Canvas2DHelper = function (gl, canvasElement) {
+export const Canvas2DHelper = function (gl, canvasElement) {
   // some globalz:
   let CV = null,
     CANVAS2D = null,

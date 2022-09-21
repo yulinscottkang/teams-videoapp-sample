@@ -1,4 +1,5 @@
 import * as faceapi from "face-api.js";
+import { Canvas2DHelper } from "./helper"
 
 export class WebglFaceDetector {
   constructor() {
