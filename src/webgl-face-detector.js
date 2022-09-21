@@ -12,10 +12,11 @@ export class WebglFaceDetector {
     this._helper = null;
     this._offsetX = 0;
     this._offsetY = 0;
+    this._path = window.location.hostname === "127.0.0.1" ? "" : "/TeamsMeetingExtra/app";
   }
 
   async init() {
-    const MODEL_URL = window.location.hostname === "127.0.0.1" ? "/models" : "/TeamsMeetingExtra/app/models";
+    const MODEL_URL = this._path + "/models";
     await faceapi.loadSsdMobilenetv1Model(MODEL_URL);
     // await faceapi.loadFaceLandmarkModel(MODEL_URL);
     // await faceapi.loadFaceRecognitionModel(MODEL_URL);
@@ -38,7 +39,7 @@ export class WebglFaceDetector {
 
     if (mask && mask != this._mask?.src) {
       this._mask = new Image();
-      this._mask.src = mask;
+      this._mask.src = this._path + mask;
       this._offsetX = offsetX;
       this._offsetY = offsetY;
     } else {
